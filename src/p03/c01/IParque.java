@@ -3,7 +3,7 @@ package src.p03.c01;
 /**
  * Interfaz de parque
  * 
- * @author Adrián Alcalde Alzaga
+ * @author Adrián Alcalde Alzaga 
  *
  */
 public interface IParque {
