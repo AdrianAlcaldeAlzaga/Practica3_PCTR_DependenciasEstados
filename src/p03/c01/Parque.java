@@ -1,8 +1,17 @@
-package src.p03.c01;
+package p03.c01;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+/**
+ * Clase Parque
+ * 
+ * @author Adrián Alcalde Alzaga
+ *
+ */
 public class Parque implements IParque{
 
 	private int contadorPersonasTotales;
@@ -12,24 +21,34 @@ public class Parque implements IParque{
 	int contadorEntradas=0;
 	int contadorSalidas=0;
 	
-	
+	/**
+	 * Constructor de la clase
+	 */
 	public Parque() {
 		contadorPersonasTotales = 0;
 		contadoresPersonasPuertaEntrada = new Hashtable<String, Integer>();
 		contadoresPersonasPuertaSalida = new Hashtable<String, Integer>();
 	}
 
-
 	@Override
-	public synchronized void entrarAlParque(String puerta){	
-		
+	public synchronized void entrarAlParque(String puerta){
+
 		// Si no hay entradas por esa puerta, inicializamos
 		if (contadoresPersonasPuertaEntrada.get(puerta) == null){
 			contadoresPersonasPuertaEntrada.put(puerta, 0);
 		}
 		
-		contadoresPersonasPuertaEntrada();	
+		comprobarAntesDeEntrar();
 		
+		try {
+			TimeUnit.MILLISECONDS.sleep(3000);
+		}catch(InterruptedException e) {
+			Logger.getGlobal().log(Level.INFO, "Hilo interrumpido");
+			return;
+		}
+		
+		contadorEntradas++;
+				
 		// Aumentamos el contador total y el individual
 		contadorPersonasTotales++;		
 		contadoresPersonasPuertaEntrada.put(puerta, contadoresPersonasPuertaEntrada.get(puerta)+1);
@@ -51,6 +70,13 @@ public class Parque implements IParque{
 		
 		comprobarAntesDeSalir();
 		
+		try {
+			TimeUnit.MILLISECONDS.sleep(3000);
+		}catch(InterruptedException e) {
+			Logger.getGlobal().log(Level.INFO, "Hilo interrumpido");
+			return;
+		}
+		
 		contadorSalidas++;
 				
 		// Disminuimos el contador total y el individual
@@ -63,7 +89,12 @@ public class Parque implements IParque{
 		checkInvariante();
 	}
 	
-	
+	/**
+	 * Informacion mostrada por consola
+	 * 
+	 * @param puerta
+	 * @param movimiento
+	 */
 	private void imprimirInfo (String puerta, String movimiento){
 		System.out.println(movimiento + " por puerta " + puerta);
 		System.out.println("--> Personas en el parque " + contadorPersonasTotales); //+ " tiempo medio de estancia: "  + tmedio);
@@ -87,15 +118,21 @@ public class Parque implements IParque{
 			System.out.println(" ");
 			System.out.println(" ");
 		}
+		
 	}
 	
+	/**
+	 * Contador con entradas y salidas de las puertas
+	 * 
+	 * @return El contador de los que entran menos los que salen
+	 */
 	private int sumarContadoresPuerta() {
-		int sumaContadoresPuerta = 0;
-			Enumeration<Integer> iterPuertas = contadoresPersonasPuerta.elements();
-			while (iterPuertas.hasMoreElements()) {
-				sumaContadoresPuerta += iterPuertas.nextElement();
+		int sumaContadoresPuertaEntrada = 0;
+			Enumeration<Integer> iterPuertasEntrada = contadoresPersonasPuertaEntrada.elements();
+			while (iterPuertasEntrada.hasMoreElements()) {
+				sumaContadoresPuertaEntrada += iterPuertasEntrada.nextElement();
 			}
-		
+			
 		int sumaContadoresPuertaSalida = 0;
 			Enumeration<Integer> iterPuertasSalida = contadoresPersonasPuertaSalida.elements();
 			while (iterPuertasSalida.hasMoreElements()) {
@@ -105,8 +142,12 @@ public class Parque implements IParque{
 		return sumaContadoresPuertaEntrada - sumaContadoresPuertaSalida;
 	}
 	
+	/**
+	 * Errores que pueden hacer que el programa no funcione
+	 */
 	protected void checkInvariante() {
-		assert sumarContadoresPuerta() == contadorPersonasTotales : "INV: La suma de contadores de las puertas debe ser igual al valor del contador del parte";
+		assert sumarContadoresPuerta() == contadorPersonasTotales : "INV: La suma de "
+				+ "contadores de las puertas debe ser igual al valor del contador del parte";
 		
 		assert sumarContadoresPuerta() >= 0 : "INV: La suma de "
 				+ "contadores de las puertas debe ser positivo";
@@ -115,6 +156,9 @@ public class Parque implements IParque{
 				+ "contadores de las puertas es mayor al aforo maximo del parque";
 	}
 
+	/**
+	 * Comprobacion para poder entrar al parque
+	 */
 	protected void comprobarAntesDeEntrar(){
 		while(contadorPersonasTotales==AFOROMAXIMO) {
 			try {
