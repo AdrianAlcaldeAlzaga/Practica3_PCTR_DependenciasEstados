@@ -5,6 +5,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Clase ActividadEntradaPuerta
+ * 
+ * @author Adrián Alcalde Alzaga
+ *
+ */
+
 public class ActividadEntradaPuerta implements Runnable{
 
 		private static final int NUMENTRADAS = 20;
@@ -16,6 +23,12 @@ public class ActividadEntradaPuerta implements Runnable{
 			this.parque = parque;
 		}
 
+		/**
+		 * Constructor de la clase
+		 * 
+		 * @param puerta
+		 * @param parque
+		 */
 		@Override
 		public void run() {
 			for (int i = 0; i < NUMENTRADAS; i ++) {
